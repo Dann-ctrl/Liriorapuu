@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Para ti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --noche:#0d0a22;
+    --noche-2:#2a1456;
+    --lila:#cdb8f5;
+    --oro:#ffd36b;
+    --texto:#f1eafc;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{
+    min-height:100vh;
+    font-family:"Nunito",system-ui,sans-serif;
+    color:var(--texto);
+    background:radial-gradient(ellipse at 50% 22%,var(--noche-2) 0%,var(--noche) 72%) fixed;
+    display:flex;flex-direction:column;align-items:center;
+    padding:24px 20px 60px;overflow-x:hidden;
+  }
+  canvas#luz{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+  main{position:relative;z-index:1;width:100%;max-width:520px}
+
+  /* ===== FLOR ===== */
+  #flor{width:min(78vw,320px);margin:0 auto;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  #flor:focus-visible{outline:3px solid var(--lila);outline-offset:6px;border-radius:12px}
+  svg{width:100%;height:auto;display:block;overflow:visible}
+
+  .halo{opacity:0;animation:aparecer 2s ease 1.8s forwards,pulso 5s ease-in-out 3.8s infinite;transform-box:fill-box;transform-origin:center}
+  .tallo,.hoja{opacity:0;animation:aparecer 1.4s ease .1s forwards}
+  .petalo{
+    transform-box:fill-box;transform-origin:50% 100%;
+    transform:rotate(var(--r)) scale(0);
+    animation:abrir 1.8s cubic-bezier(.2,.85,.25,1) forwards;
+    animation-delay:calc(var(--i)*.22s + .5s);
+  }
+  .petalo.dentro{animation-delay:calc(var(--i)*.22s + .9s)}
+  #motas{opacity:0;animation:aparecer 1.5s ease 2.3s forwards}
+  #motas circle{animation:titilar 3s ease-in-out infinite}
+  .centro{opacity:0;animation:aparecer 1.2s ease 2s forwards}
+  .rizo{
+    fill:none;stroke:#ffd36b;stroke-width:3.2;stroke-linecap:round;
+    stroke-dasharray:1;stroke-dashoffset:1;
+    filter:drop-shadow(0 0 5px #ffb938);
+    animation:trazar 2.6s ease-in-out forwards;animation-delay:calc(2.4s + var(--d)*.5s);
+  }
+  #flor.brilla svg{animation:destello 1s ease}
+
+  @keyframes abrir{to{transform:rotate(var(--r)) scale(1)}}
+  @keyframes aparecer{to{opacity:1}}
+  @keyframes trazar{to{stroke-dashoffset:0}}
+  @keyframes pulso{0%,100%{transform:scale(.92);opacity:.7}50%{transform:scale(1.06);opacity:1}}
+  @keyframes titilar{0%,100%{opacity:.35}50%{opacity:1}}
+  @keyframes destello{0%{filter:brightness(1)}35%{filter:brightness(1.5) drop-shadow(0 0 22px #ffb938)}100%{filter:brightness(1)}}
+
+  /* ===== MENSAJE ===== */
+  .carta{
+    margin-top:18px;padding:28px 24px;border-radius:20px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(205,184,245,.28);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    opacity:0;animation:aparecer 1.8s ease 4.2s forwards;
+    font-size:1.12rem;line-height:1.75;
+  }
+  .carta p+p{margin-top:1em}
+  .carta .saludo{font-weight:600;color:#ffe6a8}
+  .carta .firma{margin-top:1.3em;color:var(--lila)}
+
+  /* ===== CANCIÓN ===== */
+  .cancion{margin-top:24px;text-align:center}
+  button{
+    font:inherit;font-weight:600;font-size:1.02rem;color:#241046;cursor:pointer;
+    background:#ffd36b;border:0;border-radius:999px;padding:12px 26px;
+    box-shadow:0 0 20px rgba(255,200,90,.4);
+    transition:transform .2s ease;
+  }
+  button:hover{transform:scale(1.04)}
+  button:focus-visible{outline:3px solid var(--lila);outline-offset:4px}
+  .titulo-cancion{margin-top:10px;font-size:.95rem;color:var(--lila)}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.01s!important;animation-delay:0s!important}
+  }
+</style>
+</head>
+<body>
+<canvas id="luz" aria-hidden="true"></canvas>
+
+<main>
+  <div id="flor" role="button" tabindex="0" aria-label="Toca la flor para que brille">
+    <svg viewBox="0 0 400 640" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <radialGradient id="petalo" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="135">
+          <stop offset="0" stop-color="#ff6b6b"/>
+          <stop offset=".28" stop-color="#ff9a4a"/>
+          <stop offset=".62" stop-color="#ffcb7a"/>
+          <stop offset="1" stop-color="#ffe7b0"/>
+        </radialGradient>
+        <radialGradient id="petaloDentro" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="115">
+          <stop offset="0" stop-color="#ff7a8a"/>
+          <stop offset=".3" stop-color="#ffa95a"/>
+          <stop offset=".7" stop-color="#ffd993"/>
+          <stop offset="1" stop-color="#fff0c6"/>
+        </radialGradient>
+        <radialGradient id="aura">
+          <stop offset="0" stop-color="#ffc34d" stop-opacity=".6"/>
+          <stop offset="1" stop-color="#ffc34d" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="verde" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#2f6b4b"/>
+          <stop offset="1" stop-color="#143628"/>
+        </linearGradient>
+        <linearGradient id="verdeHoja" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#2a6a49"/>
+          <stop offset="1" stop-color="#0f2f22"/>
+        </linearGradient>
+      </defs>
+
+      <!-- aura detrás de la flor -->
+      <circle class="halo" cx="200" cy="200" r="230" fill="url(#aura)"/>
+
+      <!-- tallo curvo y hojas oscuras -->
+      <path class="tallo" d="M205 215 C190 300 238 350 220 440 C212 495 200 545 204 640" stroke="url(#verde)" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <path class="hoja" d="M214 470 C160 450 110 470 70 520 C125 535 190 520 214 470Z" fill="url(#verdeHoja)"/>
+      <path class="hoja" d="M214 500 C270 470 330 480 360 540 C300 560 235 550 214 500Z" fill="url(#verdeHoja)"/>
+      <path class="hoja" d="M206 560 C150 540 105 565 80 625 C140 635 195 615 206 560Z" fill="url(#verdeHoja)"/>
+      <path class="hoja" d="M208 575 C260 550 320 565 345 625 C285 640 225 625 208 575Z" fill="url(#verdeHoja)"/>
+      <path class="hoja" d="M200 390 C170 375 148 385 128 410 C160 418 190 412 200 390Z" fill="url(#verdeHoja)"/>
+
+      <!-- flor -->
+      <g transform="translate(200,200)">
+        <!-- 3 pétalos exteriores -->
+        <path class="petalo" style="--r:30deg;--i:0"  d="M0 0 C-36 -28 -50 -90 -8 -134 C-2 -142 6 -142 10 -134 C52 -90 38 -28 0 0Z" fill="url(#petalo)" stroke="#ffb35c" stroke-width="1.5"/>
+        <path class="petalo" style="--r:150deg;--i:2" d="M0 0 C-36 -28 -50 -90 -8 -134 C-2 -142 6 -142 10 -134 C52 -90 38 -28 0 0Z" fill="url(#petalo)" stroke="#ffb35c" stroke-width="1.5"/>
+        <path class="petalo" style="--r:270deg;--i:4" d="M0 0 C-36 -28 -50 -90 -8 -134 C-2 -142 6 -142 10 -134 C52 -90 38 -28 0 0Z" fill="url(#petalo)" stroke="#ffb35c" stroke-width="1.5"/>
+        <!-- 3 pétalos interiores -->
+        <path class="petalo dentro" style="--r:90deg;--i:1"  d="M0 0 C-30 -24 -42 -78 -6 -116 C-1 -123 5 -123 8 -116 C44 -78 32 -24 0 0Z" fill="url(#petaloDentro)" stroke="#ffc274" stroke-width="1.2"/>
+        <path class="petalo dentro" style="--r:210deg;--i:3" d="M0 0 C-30 -24 -42 -78 -6 -116 C-1 -123 5 -123 8 -116 C44 -78 32 -24 0 0Z" fill="url(#petaloDentro)" stroke="#ffc274" stroke-width="1.2"/>
+        <path class="petalo dentro" style="--r:330deg;--i:5" d="M0 0 C-30 -24 -42 -78 -6 -116 C-1 -123 5 -123 8 -116 C44 -78 32 -24 0 0Z" fill="url(#petaloDentro)" stroke="#ffc274" stroke-width="1.2"/>
+
+        <!-- motas brillantes (se generan con JS) -->
+        <g id="motas"></g>
+
+        <!-- centro morado en forma de estrella -->
+        <g class="centro">
+          <path d="M0 -34 L7 -9 L30 -17 L12 2 L26 24 L2 14 L-8 36 L-12 10 L-34 8 L-14 -6 L-24 -28 L-4 -14Z" fill="#4a2380" opacity=".95"/>
+          <circle r="7" fill="#ffe8a8"/>
+        </g>
+
+        <!-- rizos dorados (se dibujan solos) -->
+        <path class="rizo" style="--d:0" pathLength="1" d="M0 -4 C-4 -60 -36 -100 -66 -152 C-80 -176 -60 -196 -46 -182 C-38 -174 -46 -164 -54 -170"/>
+        <path class="rizo" style="--d:1" pathLength="1" d="M0 -4 C6 -50 30 -80 52 -94 C72 -106 86 -88 72 -78 C64 -72 54 -80 60 -86"/>
+        <path class="rizo" style="--d:2" pathLength="1" d="M0 -4 C-6 -30 -22 -50 -36 -58 C-48 -66 -54 -50 -44 -46 C-38 -44 -36 -52 -41 -55"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- ✏️ EDITA AQUÍ: este es el mensaje, cámbialo con tus palabras -->
+  <section class="carta">
+    <p class="saludo">Princesa</p>
+    <p>Sé que no has estado del todo bien, y no quiero que sientas que tienes que cargar con todo eso tú sola.</p>
+    <p>No quiero decirte que sonrías o que estés bien por obligación, se que no soy el mejor pero voy a estar aqui contigo, insluso esos dias en los que no quieres verme.</p>
+    <p>Como te he dicho hare y te ofrecere lo mejor de mi, no quiero verte triste, siempre voy a buscar una forma de alegrarte el momemto.</p>
+    <p>No quisisera que las cosas vayan mal, se que todo depende de mi pero creéme me estoy esforzando mucho, quiero que eso siempre lo tegas presente. </p>
+    <p>Te Amo mucho mi Corazón, siempre estare contigo para cuidarte porque eres lo mas importante de mi corazón.</p>
+    <p class="firma">Yuyin</p>
+
+    <div class="cancion">
+      <!-- ✏️ EDITA AQUÍ: pon tu canción en la misma carpeta y cambia el nombre del archivo -->
+      <audio id="audio" src="cancion.mp3" loop preload="auto"></audio>
+      <button id="btn" type="button">▶ Escuchar esta canción</button>
+      <p class="titulo-cancion">Te gustará</p>
+    </div>
+  </section>
+</main>
+
+<script>
+  /* ===== Motas brillantes en los pétalos (centro más naranja/rosa) ===== */
+  const motas = document.getElementById('motas');
+  const NS = 'http://www.w3.org/2000/svg';
+  const colores = ['#ffd36b','#ff8f5a','#ff6f9a','#fff2c4','#ffffff'];
+  [30,90,150,210,270,330].forEach(ang=>{
+    const g = document.createElementNS(NS,'g');
+    g.setAttribute('transform',`rotate(${ang})`);
+    for(let i=0;i<34;i++){
+      const r = 14 + Math.pow(Math.random(),1.6)*95;
+      const ancho = 22*(1 - r/140);
+      const c = document.createElementNS(NS,'circle');
+      c.setAttribute('cx',((Math.random()-.5)*2*ancho).toFixed(1));
+      c.setAttribute('cy',(-r).toFixed(1));
+      c.setAttribute('r',(Math.random()*1.5+.5).toFixed(1));
+      c.setAttribute('fill',colores[Math.floor(Math.random()*colores.length)]);
+      c.style.animationDelay = (Math.random()*3).toFixed(2)+'s';
+      g.appendChild(c);
+    }
+    motas.appendChild(g);
+  });
+
+  /* ===== Luces flotantes de fondo ===== */
+  const canvas = document.getElementById('luz');
+  const ctx = canvas.getContext('2d');
+  let W, H, luces = [];
+  const dpr = window.devicePixelRatio || 1;
+  function ajustar(){ W = canvas.width = innerWidth*dpr; H = canvas.height = innerHeight*dpr; }
+  addEventListener('resize', ajustar); ajustar();
+
+  function nueva(x, y, chispa){
+    return {
+      x: x ?? Math.random()*W,
+      y: y ?? H + Math.random()*H*.2,
+      r: (Math.random()*2 + .8)*dpr,
+      vx: chispa ? (Math.random()-.5)*5*dpr : (Math.random()-.5)*.3*dpr,
+      vy: chispa ? (Math.random()-.5)*5*dpr : -(Math.random()*.45+.15)*dpr,
+      a: Math.random()*.5 + .3,
+      chispa: !!chispa
+    };
+  }
+  for(let i=0;i<55;i++){ const l = nueva(); l.y = Math.random()*H; luces.push(l); }
+
+  function pintar(){
+    ctx.clearRect(0,0,W,H);
+    for(const l of luces){
+      l.x += l.vx; l.y += l.vy;
+      if(l.chispa){ l.vx *= .97; l.vy *= .97; l.a *= .965; }
+      else if(l.y < -10){ Object.assign(l, nueva()); }
+      const g = ctx.createRadialGradient(l.x,l.y,0,l.x,l.y,l.r*4);
+      g.addColorStop(0,`rgba(255,220,140,${l.a})`);
+      g.addColorStop(1,'rgba(255,220,140,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(l.x,l.y,l.r*4,0,Math.PI*2); ctx.fill();
+    }
+    luces = luces.filter(l => !l.chispa || l.a > .02);
+    requestAnimationFrame(pintar);
+  }
+  pintar();
+
+  /* ===== Tocar la flor ===== */
+  const flor = document.getElementById('flor');
+  function brillar(){
+    const r = flor.getBoundingClientRect();
+    const cx = (r.left + r.width/2)*dpr, cy = (r.top + r.height*.31)*dpr;
+    for(let i=0;i<50;i++) luces.push(nueva(cx, cy, true));
+    flor.classList.remove('brilla'); void flor.offsetWidth; flor.classList.add('brilla');
+  }
+  flor.addEventListener('click', brillar);
+  flor.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); brillar(); }});
+
+  /* ===== Canción ===== */
+  const audio = document.getElementById('audio');
+  const btn = document.getElementById('btn');
+  btn.addEventListener('click', () => {
+    if(audio.paused){
+      audio.play().then(()=>{ btn.textContent = '❚❚ Pausar'; })
+        .catch(()=>{ btn.textContent = 'Falta cancion.mp3 junto a este archivo'; });
+    } else {
+      audio.pause(); btn.textContent = '▶ Escuchar esta canción';
+    }
+  });
+</script>
+</body>
+</html>
